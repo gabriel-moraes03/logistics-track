@@ -6,9 +6,9 @@ spring:
     name: order-service
 
   datasource:
-    url: jdbc:postgresql://${DB_HOST}:5432/${DB_NAME}
-    username: ${DB_USER}
-    password: ${DB_PASSWORD}
+    url: ${POSTGRES_URL}
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
     driver-class-name: org.postgresql.Driver
 
   jpa:
@@ -21,8 +21,7 @@ spring:
         format_sql: true
 
   rabbitmq:
-    host: ${RABBITMQ_HOST}
-    port: ${RABBITMQ_PORT}
+    addresses: ${RABBITMQ_URL}
     username: ${RABBITMQ_USERNAME}
     password: ${RABBITMQ_PASSWORD}
     listener:

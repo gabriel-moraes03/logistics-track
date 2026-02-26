@@ -6,8 +6,7 @@ spring:
     name: notification-service
 
   rabbitmq:
-    host: ${RABBITMQ_HOST}
-    port: ${RABBITMQ_PORT}
+    addresses: ${RABBITMQ_URL}
     username: ${RABBITMQ_USERNAME}
     password: ${RABBITMQ_PASSWORD}
     listener:
