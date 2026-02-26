@@ -1,5 +1,5 @@
-const ORDER_API = 'http://localhost:8080/orders';
-const NOTIFICATION_API = 'http://localhost:8081/notifications/stream';
+const ORDER_API = 'https://order-service-ilx6.onrender.com/orders';
+const NOTIFICATION_API = 'https://logistics-track.onrender.com/notifications/stream';
 
 const ORDER_STATUSES = [
     'PENDING',
