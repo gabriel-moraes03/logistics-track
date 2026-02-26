@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Logistics Monitor</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: '#3b82f6',
+                        dark: '#020617', // slate-950
+                        panel: '#0f172a', // slate-900
+                        border: '#1e293b', // slate-800
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+        body {
+            background-color: #020617;
+            /* slate-950 */
+            color: #f8fafc;
+            /* slate-50 */
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* Form Controls - Square borders */
+        input {
+            border-radius: 0;
+        }
+
+        button {
+            border-radius: 0;
+        }
+
+        .panel {
+            border-radius: 0;
+        }
+
+        /* Animations */
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .notification-enter {
+            animation: slideDown 0.3s ease-out forwards;
+        }
+
+        /* Customize scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #1e293b;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #334155;
+        }
+    </style>
+</head>
+
+<body class="min-h-screen p-4 md:p-8">
+
+    <header class="mb-8 border-b border-border pb-4 flex items-center justify-between">
+        <div>
+            <h1 class="text-2xl font-bold tracking-tight text-white uppercase flex items-center gap-2">
+                <span class="w-2 h-6 bg-brand inline-block"></span>
+                Logistics Hub
+            </h1>
+            <p class="text-slate-400 text-sm mt-1 uppercase tracking-widest">System Monitor</p>
+        </div>
+
+        <div id="system-status" class="flex items-center gap-2 px-3 py-1 bg-border/50 border border-border">
+            <span id="system-status-indicator" class="w-2.5 h-2.5 rounded-full bg-slate-500"></span>
+            <span id="system-status-text" class="text-xs font-medium uppercase text-slate-300">Connecting...</span>
+        </div>
+    </header>
+
+    <main class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-7xl mx-auto">
+
+        <!-- Left Column: Creation Form -->
+        <section class="flex flex-col gap-4">
+            <div class="panel bg-panel border border-border p-6 shadow-xl relative overflow-hidden">
+                <!-- Top accent line -->
+                <div class="absolute top-0 left-0 w-full h-1 bg-brand"></div>
+
+                <h2 class="text-lg font-semibold mb-6 flex items-center gap-2 uppercase tracking-wide">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-brand" viewBox="0 0 20 20"
+                        fill="currentColor">
+                        <path fill-rule="evenodd"
+                            d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
+                            clip-rule="evenodd" />
+                    </svg>
+                    New Order
+                </h2>
+
+                <div id="form-error"
+                    class="hidden mb-4 p-3 bg-red-950/50 border border-red-900 text-red-500 text-sm font-medium"></div>
+                <div id="form-success"
+                    class="hidden mb-4 p-3 bg-green-950/50 border border-green-900 text-green-400 text-sm font-medium">
+                    Order submitted successfully.</div>
+
+                <form id="order-form" class="space-y-5">
+                    <div>
+                        <label for="customerName"
+                            class="block text-sm font-medium text-slate-400 mb-1 uppercase tracking-wider">Customer
+                            Name</label>
+                        <input type="text" id="customerName" name="customerName" required
+                            class="block w-full bg-dark border border-border text-white px-4 py-2.5 focus:outline-none focus:ring-1 focus:ring-brand focus:border-brand transition-colors placeholder-slate-600 font-medium"
+                            placeholder="Enter customer name">
+                    </div>
+
+                    <div>
+                        <label for="value"
+                            class="block text-sm font-medium text-slate-400 mb-1 uppercase tracking-wider">Order
+                            Value</label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-slate-500">$</span>
+                            <input type="number" id="value" name="value" step="0.01" min="0" required
+                                class="block w-full bg-dark border border-border text-white px-4 py-2.5 pl-8 focus:outline-none focus:ring-1 focus:ring-brand focus:border-brand transition-colors placeholder-slate-600 font-medium font-mono"
+                                placeholder="0.00">
+                        </div>
+                    </div>
+
+                    <button type="submit" id="submit-btn"
+                        class="w-full bg-brand hover:bg-blue-600 text-white font-medium py-3 px-4 uppercase tracking-wider border border-transparent hover:border-blue-400 transition-colors flex justify-center items-center gap-2 mt-2">
+                        <span>Dispatch Order</span>
+                        <svg id="submit-spinner" class="animate-spin -ml-1 mr-3 h-5 w-5 text-white hidden"
+                            xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4">
+                            </circle>
+                            <path class="opacity-75" fill="currentColor"
+                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                            </path>
+                        </svg>
+                    </button>
+                </form>
+            </div>
+
+            <!-- System Metrics Mock -->
+            <div class="grid grid-cols-2 gap-4">
+                <div
+                    class="bg-panel border border-border p-4 relative overflow-hidden group hover:border-slate-700 transition-colors">
+                    <div class="absolute inset-y-0 left-0 w-1 bg-slate-700 group-hover:bg-brand transition-colors">
+                    </div>
+                    <p class="text-xs text-slate-500 uppercase tracking-widest mb-1 pl-2">Session Orders</p>
+                    <p id="counter-orders" class="text-2xl font-bold pl-2 font-mono">0</p>
+                </div>
+                <div
+                    class="bg-panel border border-border p-4 relative overflow-hidden group hover:border-slate-700 transition-colors">
+                    <div class="absolute inset-y-0 left-0 w-1 bg-slate-700 group-hover:bg-brand transition-colors">
+                    </div>
+                    <p class="text-xs text-slate-500 uppercase tracking-widest mb-1 pl-2">System Load</p>
+                    <p class="text-2xl font-bold text-brand pl-2 font-mono">OK</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Right Column: Notification Feed -->
+        <section class="h-[calc(100vh-12rem)] min-h-[500px] flex flex-col">
+            <div class="panel bg-panel border border-border flex flex-col h-full relative overflow-hidden">
+                <!-- Top accent line -->
+                <div class="absolute top-0 left-0 w-full h-1 bg-slate-700"></div>
+
+                <div class="p-6 border-b border-border flex justify-between items-center bg-panel shrink-0 z-10">
+                    <h2 class="text-lg font-semibold flex items-center gap-2 uppercase tracking-wide">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-slate-400" fill="none"
+                            viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M13 10V3L4 14h7v7l9-11h-7z" />
+                        </svg>
+                        Event Stream
+                    </h2>
+
+                    <button id="clear-feed"
+                        class="text-xs text-slate-400 hover:text-white uppercase tracking-wider transition-colors">
+                        Clear Feed
+                    </button>
+                </div>
+
+                <div id="sse-error"
+                    class="hidden shrink-0 p-3 bg-amber-950/50 border-b border-amber-900 flex items-start gap-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-amber-500 mt-0.5 shrink-0"
+                        viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd"
+                            d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                            clip-rule="evenodd" />
+                    </svg>
+                    <div>
+                        <p class="text-amber-400 text-sm font-medium uppercase tracking-wide">Stream Disconnected</p>
+                        <p class="text-amber-500/80 text-xs mt-1">Attempting to reconnect to notification service...</p>
+                    </div>
+                </div>
+
+                <div class="flex-1 overflow-y-auto p-4 md:p-6 bg-dark/50" id="notification-container">
+                    <!-- Notifications will be injected here -->
+                    <div id="empty-state" class="h-full flex flex-col items-center justify-center text-slate-500">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mb-3 opacity-20" fill="none"
+                            viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1"
+                                d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+                        </svg>
+                        <p class="text-sm uppercase tracking-widest text-slate-600">Awaiting Events</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <section class="max-w-7xl mx-auto mb-8">
+        <div class="panel bg-panel border border-border flex flex-col relative overflow-hidden">
+            <!-- Top accent line -->
+            <div class="absolute top-0 left-0 w-full h-1 bg-brand"></div>
+
+            <div class="p-6 border-b border-border flex justify-between items-center bg-panel shrink-0 z-10">
+                <h2 class="text-lg font-semibold flex items-center gap-2 uppercase tracking-wide">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-brand" viewBox="0 0 20 20"
+                        fill="currentColor">
+                        <path d="M4 3a2 2 0 100 4h12a2 2 0 100-4H4z" />
+                        <path fill-rule="evenodd"
+                            d="M3 8h14v7a2 2 0 01-2 2H5a2 2 0 01-2-2V8zm5 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z"
+                            clip-rule="evenodd" />
+                    </svg>
+                    Registered Orders
+                </h2>
+
+                <button id="refresh-orders"
+                    class="text-xs text-brand hover:text-white uppercase tracking-wider transition-colors flex items-center gap-1 border border-brand/50 px-3 py-1 bg-brand/10 hover:bg-brand/20">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                    Refresh
+                </button>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-dark text-slate-400 text-xs uppercase tracking-wider border-b border-border">
+                            <th class="p-4 font-medium">ID</th>
+                            <th class="p-4 font-medium">Customer</th>
+                            <th class="p-4 font-medium">Value</th>
+                            <th class="p-4 font-medium">Status</th>
+                            <th class="p-4 font-medium text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="orders-table-body" class="text-sm divide-y divide-border">
+                        <!-- Order rows will be inserted here -->
+                        <tr>
+                            <td colspan="5" class="p-8 text-center text-slate-500 uppercase tracking-widest text-xs">
+                                Loading orders...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+    <script src="app.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,6 @@
+target/
+.env
+postgres_data/
+.idea/
+.vscode/
+*.class
