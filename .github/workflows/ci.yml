@@ -21,6 +21,7 @@ jobs:
         cache: 'maven'
 
     - name: Build Order service
+      working-directory: ./back/order-service
       run: mvn clean package -DskipTests
 
   build-notification-service:
